@@ -49,3 +49,34 @@ tasks:
     desc: Run user service
     cmds:
       - go run ./cmd/users
+
+  docker:run-users:
+    dir: ./go/users
+    desc: Run user service's docker-compose
+    cmds:
+      - docker-compose up -d
+
+  docker:inspect-users:
+    dir: ./go/users
+    desc: Inspect user service's db container
+    dotenv: [".env"]
+    cmds:
+      - docker exec -it dc_users_postgres psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+
+  migrate:users-up:
+    dir: ./go/users
+    desc: Run upward migrations on user service
+    dotenv: [".env"]
+    cmds:
+      - go run cmd/migrator/main.go -db "{{.DB_URL}}" -path "./migrations" -action up
+    vars:
+      DB_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
+
+  migrate:users-down:
+    dir: ./go/users
+    desc: Run downward migrations on user service
+    dotenv: [".env"]
+    cmds:
+      - go run cmd/migrator/main.go -db "{{.DB_URL}}" -path "./migrations" -action down
+    vars:
+      DB_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package users;
 
-option go_package = "your-module-name/api/proto/users;users";
+option go_package = "github.com/justcgh9/discord-clone-proto/api/proto/users;users";
 
 service UserService {  
   rpc Register (RegisterRequest) returns (RegisterResponse);
@@ -25,6 +25,7 @@ message RegisterResponse {
 message LoginRequest {
   string email = 1;
   string password = 2;
+  string app_id = 3;
 }
 
 message LoginResponse {

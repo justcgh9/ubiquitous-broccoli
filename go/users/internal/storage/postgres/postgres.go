@@ -29,7 +29,7 @@ type Storage struct {
 	conn PgxInterface
 }
 
-func New(ctx context.Context, connStr string) *Storage {
+func MustConnect(ctx context.Context, connStr string) *Storage {
 	const op = "storage.postgres.New"
 
 	conn, err := pgxpool.New(ctx, connStr)

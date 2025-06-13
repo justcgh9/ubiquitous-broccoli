@@ -48,7 +48,7 @@ tasks:
     dir: ./go/users
     desc: Run user service
     cmds:
-      - go run ./cmd/users
+      - go run ./cmd/users --config=./config/local.yml
 
   docker:run-users:
     dir: ./go/users

@@ -101,3 +101,10 @@ func (s *serverAPI) Register(
 		UserId: id,
 	}, nil
 }
+
+func (s *serverAPI) Ping(
+	ctx context.Context,
+	req *users.PingRequest,
+) (*users.PongResponse, error) {
+	return &users.PongResponse{}, nil
+}

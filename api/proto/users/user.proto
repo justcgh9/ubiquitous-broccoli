@@ -5,11 +5,21 @@ package users;
 option go_package = "github.com/justcgh9/discord-clone-proto/api/proto/users;users";
 
 service UserService {  
+  rpc Ping (PingRequest) returns (PongResponse);
+
   rpc Register (RegisterRequest) returns (RegisterResponse);
   
   rpc Login (LoginRequest) returns (LoginResponse);
   
   rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
+}
+
+message PingRequest {
+
+}
+
+message PongResponse {
+
 }
 
 message RegisterRequest {

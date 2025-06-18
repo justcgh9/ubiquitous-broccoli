@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/justcgh9/discord-clone-proto/gen/go/users"
+	"github.com/justcgh9/discord-clone-users/internal/models"
 	"github.com/justcgh9/discord-clone-users/internal/service/auth"
 	"github.com/justcgh9/discord-clone-users/internal/storage"
 	"google.golang.org/grpc"
@@ -18,7 +19,7 @@ type Auth interface {
 		email string,
 		password string,
 		appID int,
-	) (string, error)
+	) (string, models.UserDTO, error)
 	RegisterNewUser(ctx context.Context,
 		email string,
 		handle string,
@@ -52,7 +53,7 @@ func (s *serverAPI) Login(
 		return nil, status.Error(codes.InvalidArgument, "app_id is required")
 	}
 
-	token, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword(), int(req.GetAppId()))
+	token, usr, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword(), int(req.GetAppId()))
 	if errors.Is(err, auth.ErrInvalidCredentials) {
 		return nil, status.Error(codes.InvalidArgument, "invalid email or password")
 	}
@@ -63,6 +64,11 @@ func (s *serverAPI) Login(
 
 	return &users.LoginResponse{
 		AccessToken: token,
+		User: &users.User{
+			UserId: usr.ID,
+			Email: usr.Email,
+			Handle: usr.Handle,
+		},
 	}, nil
 }
 

@@ -40,6 +40,7 @@ message LoginRequest {
 
 message LoginResponse {
   string access_token = 1;
+  User  user = 2;
 }
 
 message GetProfileRequest {
@@ -50,4 +51,11 @@ message GetProfileResponse {
   int64 user_id = 1;
   string email = 2;
   string username = 3;
+}
+
+message User {
+  int64 user_id = 1;
+  string email = 2;
+  string password = 3;
+  string handle = 4;
 }

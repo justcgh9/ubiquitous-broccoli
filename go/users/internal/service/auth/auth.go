@@ -59,7 +59,7 @@ func (a *Auth) Login(
 	email string,
 	password string,
 	appID int,
-) (string, error) {
+) (string, models.UserDTO, error) {
 	const op = "Auth.Login"
 
 	log := a.log.With(
@@ -72,23 +72,23 @@ func (a *Auth) Login(
 	user, err := a.usrProvider.User(ctx, email)
 	if errors.Is(err, storage.ErrUserNotFound) {
 		log.Warn("user not found", slog.String("err", err.Error()))
-		return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		return "", models.UserDTO{}, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
 
 	if err != nil {
 		log.Error("failed to get user", slog.String("err", err.Error()))
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		log.Warn("invalid credentials", slog.String("err", err.Error()))
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	app, err := a.appProvider.App(ctx, appID)
 	if err != nil {
 		log.Error("failed to get app", slog.String("err", err.Error()))
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	token, err := jwt.NewToken(
@@ -99,10 +99,10 @@ func (a *Auth) Login(
 
 	if err != nil {
 		log.Error("failed to generate token", slog.String("err", err.Error()))
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return token, nil
+	return token, models.NewDTOFromUser(user), nil
 }
 
 func (a *Auth) RegisterNewUser(ctx context.Context, email string, handle string, pass string) (int64, error) {

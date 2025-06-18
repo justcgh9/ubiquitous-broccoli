@@ -260,6 +260,7 @@ func (x *LoginRequest) GetAppId() int64 {
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	User          *User                  `protobuf:"bytes,2,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -299,6 +300,13 @@ func (x *LoginResponse) GetAccessToken() string {
 		return x.AccessToken
 	}
 	return ""
+}
+
+func (x *LoginResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
 }
 
 type GetProfileRequest struct {
@@ -405,6 +413,74 @@ func (x *GetProfileResponse) GetUsername() string {
 	return ""
 }
 
+type User struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Handle        string                 `protobuf:"bytes,4,opt,name=handle,proto3" json:"handle,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *User) Reset() {
+	*x = User{}
+	mi := &file_users_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *User) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*User) ProtoMessage() {}
+
+func (x *User) ProtoReflect() protoreflect.Message {
+	mi := &file_users_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use User.ProtoReflect.Descriptor instead.
+func (*User) Descriptor() ([]byte, []int) {
+	return file_users_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *User) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *User) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *User) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *User) GetHandle() string {
+	if x != nil {
+		return x.Handle
+	}
+	return ""
+}
+
 var File_users_user_proto protoreflect.FileDescriptor
 
 const file_users_user_proto_rawDesc = "" +
@@ -421,15 +497,21 @@ const file_users_user_proto_rawDesc = "" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x15\n" +
-	"\x06app_id\x18\x03 \x01(\x03R\x05appId\"2\n" +
+	"\x06app_id\x18\x03 \x01(\x03R\x05appId\"S\n" +
 	"\rLoginResponse\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"6\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1f\n" +
+	"\x04user\x18\x02 \x01(\v2\v.users.UserR\x04user\"6\n" +
 	"\x11GetProfileRequest\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"_\n" +
 	"\x12GetProfileResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername2\xf2\x01\n" +
+	"\busername\x18\x03 \x01(\tR\busername\"i\n" +
+	"\x04User\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x16\n" +
+	"\x06handle\x18\x04 \x01(\tR\x06handle2\xf2\x01\n" +
 	"\vUserService\x12/\n" +
 	"\x04Ping\x12\x12.users.PingRequest\x1a\x13.users.PongResponse\x12;\n" +
 	"\bRegister\x12\x16.users.RegisterRequest\x1a\x17.users.RegisterResponse\x122\n" +
@@ -449,7 +531,7 @@ func file_users_user_proto_rawDescGZIP() []byte {
 	return file_users_user_proto_rawDescData
 }
 
-var file_users_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_users_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_users_user_proto_goTypes = []any{
 	(*PingRequest)(nil),        // 0: users.PingRequest
 	(*PongResponse)(nil),       // 1: users.PongResponse
@@ -459,21 +541,23 @@ var file_users_user_proto_goTypes = []any{
 	(*LoginResponse)(nil),      // 5: users.LoginResponse
 	(*GetProfileRequest)(nil),  // 6: users.GetProfileRequest
 	(*GetProfileResponse)(nil), // 7: users.GetProfileResponse
+	(*User)(nil),               // 8: users.User
 }
 var file_users_user_proto_depIdxs = []int32{
-	0, // 0: users.UserService.Ping:input_type -> users.PingRequest
-	2, // 1: users.UserService.Register:input_type -> users.RegisterRequest
-	4, // 2: users.UserService.Login:input_type -> users.LoginRequest
-	6, // 3: users.UserService.GetProfile:input_type -> users.GetProfileRequest
-	1, // 4: users.UserService.Ping:output_type -> users.PongResponse
-	3, // 5: users.UserService.Register:output_type -> users.RegisterResponse
-	5, // 6: users.UserService.Login:output_type -> users.LoginResponse
-	7, // 7: users.UserService.GetProfile:output_type -> users.GetProfileResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	8, // 0: users.LoginResponse.user:type_name -> users.User
+	0, // 1: users.UserService.Ping:input_type -> users.PingRequest
+	2, // 2: users.UserService.Register:input_type -> users.RegisterRequest
+	4, // 3: users.UserService.Login:input_type -> users.LoginRequest
+	6, // 4: users.UserService.GetProfile:input_type -> users.GetProfileRequest
+	1, // 5: users.UserService.Ping:output_type -> users.PongResponse
+	3, // 6: users.UserService.Register:output_type -> users.RegisterResponse
+	5, // 7: users.UserService.Login:output_type -> users.LoginResponse
+	7, // 8: users.UserService.GetProfile:output_type -> users.GetProfileResponse
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_users_user_proto_init() }
@@ -487,7 +571,7 @@ func file_users_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_users_user_proto_rawDesc), len(file_users_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

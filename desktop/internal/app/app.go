@@ -6,35 +6,47 @@ import (
 	"fyne.io/fyne/v2"
 	fyneapp "github.com/justcgh9/discord-clone/desktop/internal/app/fyne"
 	grpcapp "github.com/justcgh9/discord-clone/desktop/internal/app/grpc"
+	"github.com/justcgh9/discord-clone/desktop/internal/appcontext"
 )
 
 type App struct {
-	log *slog.Logger
 	app *fyneapp.App
-	rpc *grpcapp.GRPCClient
+	ctx *appcontext.Context
 }
 
-func New(
+func Run (
 	log *slog.Logger,
 	app fyne.App,
+	srvAddr string,
 ) *App {
-	return &App{
-		log: log,
-		app: fyneapp.New(
-			log,
-			app,
-		),
-	}
-}
 
-func (a *App) Run() {
-	grpc, err := grpcapp.Connect(a.log)
+	fyneApp := fyneapp.New(
+		log,
+		app,
+	)
+
+	grpc, err := grpcapp.Connect(
+		log,
+		srvAddr,
+	)
+
 	if err != nil {
 		msg := "failed to connect to gRPC server"
-		a.log.Error(msg, slog.String("err", err.Error()))
-		a.app.FailRun(msg)
-	} else {
-		a.rpc = grpc
-		a.app.Run()
+		log.Error(msg, slog.String("err", err.Error()))
+		fyneApp.FailRun(msg)
+		return nil
+	}
+
+	ctx := appcontext.Context{
+		App: app,
+		Log: log,
+		RPC: grpc,
+	}
+
+	fyneApp.Run(ctx)
+
+	return &App{
+		app: fyneApp,
+		ctx: &ctx,
 	}
 }

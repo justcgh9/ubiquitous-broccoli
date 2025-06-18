@@ -13,10 +13,11 @@ func main() {
         Level: slog.LevelDebug,
     }))
 
-    a := myApp.New(
+    a := myApp.Run(
         log,
         app.New(),
+        "localhost:44044",
     )
 
-    a.Run()
+    _ = a
 }

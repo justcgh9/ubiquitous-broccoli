@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"fyne.io/fyne/v2"
+	"github.com/justcgh9/discord-clone/desktop/internal/appcontext"
 	errorpage "github.com/justcgh9/discord-clone/desktop/internal/pages/error"
 	"github.com/justcgh9/discord-clone/desktop/internal/pages/login"
 )
@@ -25,10 +26,12 @@ func New(
 	}
 }
 
-func (a *App) Run() {
+func (a *App) Run(
+	ctx appcontext.Context,
+) {
 
 	login.ShowLoginPage(
-		a.app,
+		ctx,
 		a.log,
 	)
 	a.app.Run()

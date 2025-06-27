@@ -4,14 +4,21 @@ type User struct {
     Id      string
     Email   string
     Handle  string
+    Token   string
 }
 
-type UserLoginDTO struct {
+type LoginDTO struct {
     Email       string
     Password    string
 }
 
-func NewUser(id, email, handle string) User {
+type RegisterDTO struct {
+    Handle string
+    Email string
+    Password string
+}
+
+func New(id, email, handle string) User {
     return User{
         Id: id,
         Email: email,
@@ -19,8 +26,20 @@ func NewUser(id, email, handle string) User {
     }
 }
 
-func NewLoginDTO(email, password string) UserLoginDTO {
-    return UserLoginDTO{
+func NewLoginDTO(email, password string) LoginDTO {
+    return LoginDTO{
+        Email: email,
+        Password: password,
+    }
+}
+
+func NewRegisterDTO(
+    handle string,
+    email string,
+    password string,
+) RegisterDTO {
+    return RegisterDTO{
+        Handle: handle,
         Email: email,
         Password: password,
     }

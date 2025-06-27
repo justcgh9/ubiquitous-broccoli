@@ -1,4 +1,4 @@
-package login
+package register
 
 import (
 	"context"
@@ -16,35 +16,31 @@ import (
 	"github.com/justcgh9/discord-clone/desktop/internal/appcontext"
 	"github.com/justcgh9/discord-clone/desktop/internal/components/background"
 	"github.com/justcgh9/discord-clone/desktop/internal/models/user"
-	"github.com/justcgh9/discord-clone/desktop/internal/pages/register"
 )
 
-func ShowLoginPage(ctx *appcontext.Context, log *slog.Logger) {
-	var win fyne.Window
-	if ctx.App.ActiveWindow() == nil {
-		win = ctx.App.NewWindow("ForkCord")
-	} else {
-		win = ctx.App.ActiveWindow()
-	}
-
-	log = log.With(slog.String("page", "login"))
-	ctx.App.SetActiveWindow(win)
+func ShowRegisterPage(ctx *appcontext.Context, log *slog.Logger, back func()) {
+	win := ctx.App.ActiveWindow()
+	log = log.With(slog.String("page", "register"))
 
 	closeWindowChan := make(chan struct{})
 
-	// Form fields
+	// Fields
 	email := widget.NewEntry()
 	email.SetPlaceHolder("Email")
+
+	username := widget.NewEntry()
+	username.SetPlaceHolder("Username")
 
 	password := widget.NewPasswordEntry()
 	password.SetPlaceHolder("Password")
 
 	submit := func() {
 		emailText := strings.TrimSpace(email.Text)
+		usernameText := strings.TrimSpace(username.Text)
 		passwordText := strings.TrimSpace(password.Text)
 
-		if emailText == "" || passwordText == "" {
-			dialog.ShowError(fmt.Errorf("email and password are required"), win)
+		if emailText == "" || usernameText == "" || passwordText == "" {
+			dialog.ShowError(fmt.Errorf("all fields are required"), win)
 			return
 		}
 
@@ -53,14 +49,27 @@ func ShowLoginPage(ctx *appcontext.Context, log *slog.Logger) {
 			return
 		}
 
-		log.Info(fmt.Sprintf("login clicked: %s", emailText))
+		log.Info("registration clicked",
+			slog.String("email", emailText),
+			slog.String("username", usernameText),
+		)
+
+		_, err := ctx.RPC.Register(context.TODO(), user.NewRegisterDTO(
+			usernameText,
+			emailText,
+			passwordText,
+		))
+		if err != nil {
+			dialog.ShowError(fmt.Errorf("registration failed: %v", err), win)
+			return
+		}
 
 		usr, token, err := ctx.RPC.Login(context.TODO(), user.NewLoginDTO(
 			emailText,
 			passwordText,
 		))
 		if err != nil {
-			dialog.ShowError(fmt.Errorf("login failed: %v", err), win)
+			dialog.ShowError(fmt.Errorf("something went wrong: %v", err), win)
 			return
 		}
 
@@ -70,49 +79,43 @@ func ShowLoginPage(ctx *appcontext.Context, log *slog.Logger) {
 		closeWindowChan <- struct{}{}
 	}
 
-	// Handle Enter key
+	// Button & keyboard submission
+	registerButton := widget.NewButtonWithIcon("Register", theme.ConfirmIcon(), submit)
 	email.OnSubmitted = func(_ string) { submit() }
+	username.OnSubmitted = func(_ string) { submit() }
 	password.OnSubmitted = func(_ string) { submit() }
 
-	// Form layout
-	loginButton := widget.NewButtonWithIcon("Log In", theme.ConfirmIcon(), submit)
-	forgot := widget.NewHyperlink("Forgot your password?", nil)
-
-	registerLink := widget.NewHyperlink("Register", nil)
-	registerLink.OnTapped = func() {
-		register.ShowRegisterPage(ctx, log, func() {
-			ShowLoginPage(ctx, log)
-		})
-	}
+	login := widget.NewHyperlink("Back to Login", nil)
+	login.OnTapped = back
 
 	form := container.NewVBox(
-		widget.NewLabelWithStyle("Welcome back!", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		widget.NewLabelWithStyle("Create your account", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		widget.NewLabel(""),
 		widget.NewLabel("Email *"),
 		email,
+		widget.NewLabel("Username *"),
+		username,
 		widget.NewLabel("Password *"),
 		password,
-		forgot,
-		loginButton,
-		widget.NewLabel("Don't have an account?"),
-		registerLink,
+		registerButton,
+		widget.NewLabel("Already have an account?"),
+		login,
 	)
 
-	// Background & layout
+	// Background card
 	bg := background.NewBackgroundImage("./media/background-login.png")
 	card := container.NewPadded(form)
 	cardBG := background.NewCardBackground(
 		theme.Color(theme.ColorNameBackground),
 		fyne.NewSize(320, 400),
 	)
-	loginCard := container.NewStack(cardBG, card)
+	registerCard := container.NewStack(cardBG, card)
 
 	content := container.NewStack(
 		bg,
-		container.NewCenter(loginCard),
+		container.NewCenter(registerCard),
 	)
 
-	// Close window after successful login
 	go func() {
 		<-closeWindowChan
 		fyne.Do(win.Close)
@@ -120,5 +123,4 @@ func ShowLoginPage(ctx *appcontext.Context, log *slog.Logger) {
 
 	win.SetContent(content)
 	win.Resize(fyne.NewSize(900, 600))
-	win.Show()
 }

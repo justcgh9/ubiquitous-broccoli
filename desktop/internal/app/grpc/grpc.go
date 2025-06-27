@@ -63,7 +63,7 @@ func Connect(
 
 func (c *GRPCClient) Login (
 	ctx context.Context, 
-	usr user.UserLoginDTO,
+	usr user.LoginDTO,
 ) (user.User, string, error) {
 	const op = "grpc.Login"
 
@@ -96,9 +96,46 @@ func (c *GRPCClient) Login (
 	)
 	
 
-	return user.NewUser(
+	return user.New(
 		fmt.Sprintf("%d", resp.User.UserId),
 		resp.User.GetEmail(),
 		resp.User.GetHandle(),
 	), resp.GetAccessToken(), nil
+}
+
+func (c *GRPCClient) Register (
+	ctx context.Context,
+	usr user.RegisterDTO,
+) (int64, error) {
+	const op = "grpc.Register"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.String("email", usr.Email),
+		slog.String("handle", usr.Handle),
+	)
+
+	log.Info("registration attempt")
+
+	resp, err := c.client.Register(
+		ctx,
+		&users.RegisterRequest{
+			Email: usr.Email,
+			Username: usr.Handle,
+			Password: usr.Password,
+		},
+	)
+
+	if err != nil {
+		//TODO: add correct error handling
+		log.Warn("error during registration", slog.String("err", err.Error()))
+		return 0, err
+	}
+
+	log.Info(
+		"login successful",
+		slog.Int64("user_id", resp.GetUserId()),
+	)
+
+	return resp.GetUserId(), nil
 }

@@ -37,16 +37,16 @@ func Run (
 		return nil
 	}
 
-	ctx := appcontext.Context{
-		App: app,
+	ctx := &appcontext.Context{
+		App: fyneApp,
 		Log: log,
 		RPC: grpc,
 	}
 
-	fyneApp.Run(ctx)
+	fyneApp.Start(ctx)
 
 	return &App{
 		app: fyneApp,
-		ctx: &ctx,
+		ctx: ctx,
 	}
 }

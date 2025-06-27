@@ -10,8 +10,9 @@ import (
 )
 
 type App struct {
-	app fyne.App
-	log *slog.Logger
+	fyne.App
+	activeWindow fyne.Window
+	log 		 *slog.Logger
 }
 
 func New(
@@ -22,27 +23,35 @@ func New(
 		log: slog.With(
 			slog.String("client", "fyne app"),
 		),
-		app: app,
+		App: app,
 	}
 }
 
-func (a *App) Run(
-	ctx appcontext.Context,
+func (a *App) Start(
+	ctx *appcontext.Context,
 ) {
 
 	login.ShowLoginPage(
 		ctx,
 		a.log,
 	)
-	a.app.Run()
+	a.Run()
 }
 
 func (a *App) RenderError(message string) {
 	a.log.Error("failure", slog.String("err", message))
-	errorpage.ShowErrorWindow(a.app, message)
+	errorpage.ShowErrorWindow(a, message)
 }
 
 func (a *App) FailRun(message string) {
 	a.RenderError(message)
-	a.app.Run()
+	a.Run()
+}
+
+func (a *App) ActiveWindow() fyne.Window {
+	return  a.activeWindow
+}
+
+func (a *App) SetActiveWindow(w fyne.Window) {
+	a.activeWindow = w
 }

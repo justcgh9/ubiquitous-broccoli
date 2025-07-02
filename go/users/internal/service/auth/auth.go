@@ -152,3 +152,50 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 
 	return isAdmin, nil
 }
+
+func (a *Auth) LoginByToken(
+	ctx context.Context,
+	token string,
+) (models.UserDTO, error) {
+	const op = "Auth.LoginByToken"
+
+	log := a.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("signing in by token")
+
+	appId, err := jwt.ExtractAppID(token)
+	if err != nil {
+		log.Error("could not extract app id", slog.String("err", err.Error()))
+		return models.UserDTO{}, fmt.Errorf("%s: error decoding jwt %v", op, err)
+	}
+
+	app, err := a.appProvider.App(ctx, appId)
+	if err != nil {
+		log.Error("failed to get app", slog.String("err", err.Error()))
+		return models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	claims, err := jwt.ParseToken(token, app.Secret)
+	if err != nil {
+		return  models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	usr, err := a.usrProvider.User(
+		ctx,
+		claims.Email,
+	)
+
+	if errors.Is(err, storage.ErrUserNotFound) {
+		log.Warn("user not found", slog.String("err", err.Error()))
+		return models.UserDTO{}, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+	}
+
+	if err != nil {
+		log.Error("failed to get user", slog.String("err", err.Error()))
+		return models.UserDTO{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return models.NewDTOFromUser(usr), nil
+}

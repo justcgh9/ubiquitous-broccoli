@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_Ping_FullMethodName       = "/users.UserService/Ping"
-	UserService_Register_FullMethodName   = "/users.UserService/Register"
-	UserService_Login_FullMethodName      = "/users.UserService/Login"
-	UserService_GetProfile_FullMethodName = "/users.UserService/GetProfile"
+	UserService_Ping_FullMethodName         = "/users.UserService/Ping"
+	UserService_Register_FullMethodName     = "/users.UserService/Register"
+	UserService_Login_FullMethodName        = "/users.UserService/Login"
+	UserService_LoginByToken_FullMethodName = "/users.UserService/LoginByToken"
+	UserService_GetProfile_FullMethodName   = "/users.UserService/GetProfile"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -32,6 +33,7 @@ type UserServiceClient interface {
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PongResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	LoginByToken(ctx context.Context, in *LoginByTokenRequest, opts ...grpc.CallOption) (*LoginByTokenResponse, error)
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 }
 
@@ -73,6 +75,16 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
+func (c *userServiceClient) LoginByToken(ctx context.Context, in *LoginByTokenRequest, opts ...grpc.CallOption) (*LoginByTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginByTokenResponse)
+	err := c.cc.Invoke(ctx, UserService_LoginByToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProfileResponse)
@@ -90,6 +102,7 @@ type UserServiceServer interface {
 	Ping(context.Context, *PingRequest) (*PongResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	LoginByToken(context.Context, *LoginByTokenRequest) (*LoginByTokenResponse, error)
 	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
@@ -109,6 +122,9 @@ func (UnimplementedUserServiceServer) Register(context.Context, *RegisterRequest
 }
 func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUserServiceServer) LoginByToken(context.Context, *LoginByTokenRequest) (*LoginByTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginByToken not implemented")
 }
 func (UnimplementedUserServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
@@ -188,6 +204,24 @@ func _UserService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_LoginByToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginByTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).LoginByToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_LoginByToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).LoginByToken(ctx, req.(*LoginByTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProfileRequest)
 	if err := dec(in); err != nil {
@@ -224,6 +258,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _UserService_Login_Handler,
+		},
+		{
+			MethodName: "LoginByToken",
+			Handler:    _UserService_LoginByToken_Handler,
 		},
 		{
 			MethodName: "GetProfile",

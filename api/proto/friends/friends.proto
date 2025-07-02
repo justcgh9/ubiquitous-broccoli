@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package friends;
+
+service FriendService {
+  rpc SendRequest(FriendRequest) returns (FriendResponse);
+  rpc AcceptRequest(FriendAction) returns (FriendResponse);
+  rpc DenyRequest(FriendAction) returns (FriendResponse);
+  rpc RemoveFriend(FriendAction) returns (FriendResponse);
+  rpc ListFriends(UserID) returns (FriendList);
+  rpc BlockUser(FriendAction) returns (FriendResponse);
+}
+
+message FriendRequest {
+  string from_user_id = 1;
+  string to_user_id = 2;
+}
+
+message FriendAction {
+  string user_id = 1;
+  string target_id = 2;
+}
+
+message Friend {
+  string id = 1;
+  string handle = 2;
+  string status = 3; // ACCEPTED, PENDING, BLOCKED
+}
+
+message FriendList {
+  repeated Friend friends = 1;
+}
+
+message UserID {
+  string user_id = 1;
+}
+
+message FriendResponse {
+  string message = 1;
+}

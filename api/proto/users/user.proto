@@ -10,6 +10,8 @@ service UserService {
   rpc Register (RegisterRequest) returns (RegisterResponse);
   
   rpc Login (LoginRequest) returns (LoginResponse);
+
+  rpc LoginByToken (LoginByTokenRequest) returns (LoginByTokenResponse);
   
   rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
 }
@@ -41,6 +43,14 @@ message LoginRequest {
 message LoginResponse {
   string access_token = 1;
   User  user = 2;
+}
+
+message LoginByTokenRequest {
+  string access_token = 1;
+}
+
+message LoginByTokenResponse {
+  User user = 1;
 }
 
 message GetProfileRequest {

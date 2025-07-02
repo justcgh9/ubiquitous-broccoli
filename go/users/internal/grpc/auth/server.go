@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/justcgh9/discord-clone-proto/gen/go/users"
+	"github.com/justcgh9/discord-clone-users/internal/lib/jwt"
 	"github.com/justcgh9/discord-clone-users/internal/models"
 	"github.com/justcgh9/discord-clone-users/internal/service/auth"
 	"github.com/justcgh9/discord-clone-users/internal/storage"
@@ -25,6 +26,10 @@ type Auth interface {
 		handle string,
 		pass string,
 	) (int64, error)
+	LoginByToken(
+		ctx context.Context,
+		token string,
+	) (models.UserDTO, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
@@ -105,6 +110,34 @@ func (s *serverAPI) Register(
 
 	return &users.RegisterResponse{
 		UserId: id,
+	}, nil
+}
+
+func (s *serverAPI) LoginByToken(
+	ctx context.Context,
+	req *users.LoginByTokenRequest,
+) (*users.LoginByTokenResponse, error) {
+
+	if req.GetAccessToken() == "" {
+		return nil, status.Error(codes.InvalidArgument, "login first")
+	}
+
+	usr, err := s.auth.LoginByToken(ctx, req.GetAccessToken())
+
+	if errors.Is(err, jwt.ErrExpired) {
+		return nil, status.Error(codes.InvalidArgument, "token expired")
+	}
+
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid token")
+	}
+
+	return &users.LoginByTokenResponse{
+		User: &users.User{
+			UserId: usr.ID,
+			Email: usr.Email,
+			Handle: usr.Handle,
+		},
 	}, nil
 }
 

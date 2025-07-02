@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -83,15 +82,15 @@ func ExtractAppID(tokenString string) (int, error) {
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
-	appIdStr, ok := claims["app_id"].(string)
+	appId, ok := claims["app_id"].(float64)
 	if !ok {
 		return 0, errors.New("invalid or missing app_id in token")
 	}
 
-	appId, err := strconv.Atoi(appIdStr)
-	if err != nil {
-		return  0, errors.New("invalid app_id")
-	}
+	// appId, err := strconv.Atoi(appIdStr)
+	// if err != nil {
+	// 	return  0, errors.New("invalid app_id")
+	// }
 
-	return appId, nil
+	return int(appId), nil
 }

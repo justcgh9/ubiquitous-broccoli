@@ -12,3 +12,31 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - private_network
+
+  app:
+    build: 
+      context: .
+      args:
+        CONFIG_PATH: ${CONFIG_PATH}
+        SERVER_PORT: ${SERVER_PORT}
+    container_name: dc_users_srv
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    networks:
+      - private_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  private_network:
+    driver: bridge

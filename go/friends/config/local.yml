@@ -1,0 +1,10 @@
+env: "local"
+storage_path: "postgres://user:password@localhost:5433/users_db?sslmode=disable"
+users_grpc_client:
+  uri: "localhost:44044"
+  timeout: 5s
+  queue_size: 32
+  num_workers: 4
+grpc_srv:
+  port: 44045
+  timeout: 5s

@@ -9,6 +9,12 @@ const (
 	StatusBlocked  FriendStatus = "BLOCKED"
 )
 
+type Friend struct {
+    ID     string
+    Handle string
+    Status FriendStatus
+}
+
 type Friendship struct {
 	UserID   string
 	FriendID string

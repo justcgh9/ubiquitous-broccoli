@@ -37,7 +37,7 @@ func MustConnect(ctx context.Context, connStr string) *Storage {
 		log.Fatalf("%s %v", op, err)
 	}
 
-	err = conn.Ping(context.Background())
+	err = conn.Ping(ctx)
 	if err != nil {
 		log.Fatalf("%s %v", op, err)
 	}

@@ -12,17 +12,17 @@ import (
 )
 
 type LoginByTokenPool struct {
-	requests chan loginRequest
+	requests chan LoginRequest
 	log      *slog.Logger
 }
 
-type loginRequest struct {
+type LoginRequest struct {
 	ctx context.Context
 	token   string
-	resultC chan loginResult
+	resultC chan LoginResult
 }
 
-type loginResult struct {
+type LoginResult struct {
 	User *users.LoginByTokenResponse
 	Err  error
 }
@@ -35,7 +35,7 @@ func NewLoginByTokenPool(
 	timeout time.Duration,
 ) (*LoginByTokenPool, error) {
 	pool := &LoginByTokenPool{
-		requests: make(chan loginRequest, queueSize),
+		requests: make(chan LoginRequest, queueSize),
 		log:      log,
 	}
 
@@ -76,7 +76,7 @@ func (p *LoginByTokenPool) worker(
 	for req := range p.requests {
 		select {
 		case <-req.ctx.Done():
-			req.resultC <- loginResult{User: nil, Err: req.ctx.Err()}
+			req.resultC <- LoginResult{User: nil, Err: req.ctx.Err()}
 			continue
 		default:
 		}
@@ -87,20 +87,20 @@ func (p *LoginByTokenPool) worker(
 		})
 		cancel()
 
-		req.resultC <- loginResult{
+		req.resultC <- LoginResult{
 			User: resp,
 			Err:  err,
 		}
 	}
 }
 
-func (p *LoginByTokenPool) Enqueue(ctx context.Context, token string) <-chan loginResult {
-	resultC := make(chan loginResult, 1)
+func (p *LoginByTokenPool) Verify(ctx context.Context, token string) <-chan LoginResult {
+	resultC := make(chan LoginResult, 1)
 
 	select {
-	case p.requests <- loginRequest{ctx: ctx, token: token, resultC: resultC}:
+	case p.requests <- LoginRequest{ctx: ctx, token: token, resultC: resultC}:
 	case <-ctx.Done():
-		resultC <- loginResult{User: nil, Err: ctx.Err()}
+		resultC <- LoginResult{User: nil, Err: ctx.Err()}
 	}
 
 	return resultC

@@ -40,7 +40,7 @@ func main() {
 		panic(err)
 	}
 
-	resC := loginRequestQueue.Enqueue(context.TODO(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOjEsImVtYWlsIjoianVzdGNvb2xlc3RnaXJhZmZlOUBnbWFpbC5jb20iLCJleHAiOjE3NTQ0ODA5NjIsInVpZCI6M30.8mOyl5UlNQ7au7cMTOmt4xHIkBuUGCxCDUSY1uYX484")
+	resC := loginRequestQueue.Verify(context.TODO(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOjEsImVtYWlsIjoianVzdGNvb2xlc3RnaXJhZmZlOUBnbWFpbC5jb20iLCJleHAiOjE3NTQ0ODA5NjIsInVpZCI6M30.8mOyl5UlNQ7au7cMTOmt4xHIkBuUGCxCDUSY1uYX484")
 
 	res := <- resC
 

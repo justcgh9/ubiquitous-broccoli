@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package friends;
 
+option go_package = "github.com/justcgh9/discord-clone-proto/api/proto/friends;friends";
+
 service FriendService {
   rpc SendRequest(FriendRequest) returns (FriendResponse);
   rpc AcceptRequest(FriendAction) returns (FriendResponse);
@@ -14,11 +16,13 @@ service FriendService {
 message FriendRequest {
   string from_user_id = 1;
   string to_user_id = 2;
+  string access_token = 3;
 }
 
 message FriendAction {
   string user_id = 1;
   string target_id = 2;
+  string access_token = 3;
 }
 
 message Friend {

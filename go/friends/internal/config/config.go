@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Env            string     `yaml:"env" env-default:"local"`
 	StoragePath    string     `yaml:"storage_path" env-required:"true"`
+	GraphStorage   GraphStorage	`yaml:"graph_storage" env-required:"true"`
 	GRPCSrv        GRPCServerConfig `yaml:"grpc_srv" env-required:"true"`
 	UsersClient	   GRPCUserServiceClient `yaml:"users_grpc_client" env-required:"true"`
 }
@@ -23,6 +24,13 @@ type GRPCUserServiceClient struct {
 	Timeout		time.Duration 	`yaml:"timeout"`
 	QueueSize 	int 	`yaml:"queue_size" env-default:"16"`
 	NumWorkers 	int 	`yaml:"num_workers" env-default:"4"`
+}
+
+type GraphStorage struct {
+	URI 		string 	`yaml:"uri" env-required:"true"`
+	Username	string	`yaml:"username" env-required:"true"`
+	Password 	string 	`yaml:"password" env-required:"true"`
+	Realm 		string 	`yaml:"realm" env-default:"true"`
 }
 
 func MustLoad() *Config {

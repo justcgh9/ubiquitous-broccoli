@@ -1,5 +1,5 @@
 env: "local"
-storage_path: "postgres://user:password@localhost:5433/users_db?sslmode=disable"
+storage_path: "postgres://postgres:postgres@localhost:5432/friends?sslmode=disable"
 users_grpc_client:
   uri: "localhost:44044"
   timeout: 5s
@@ -8,3 +8,8 @@ users_grpc_client:
 grpc_srv:
   port: 44045
   timeout: 5s
+graph_storage:
+  uri: "neo4j://localhost:7687"
+  username: "neo4j"
+  password: "Test12345678"
+  realm: ""

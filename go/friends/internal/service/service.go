@@ -36,7 +36,6 @@ func NewService(req RequestsManager, fri FriendsManager, blk BlockManager) *Serv
     }
 }
 
-// SendRequest delegates to requests manager
 func (s *Service) SendRequest(ctx context.Context, fromUserID, toUserID string) error {
     if fromUserID == toUserID {
         return fmt.Errorf("cannot send request to self")

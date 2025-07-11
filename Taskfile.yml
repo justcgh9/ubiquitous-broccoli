@@ -16,7 +16,12 @@ tasks:
     desc: Generate Go code from Protobuf files for users servers
     cmds:
       - protoc -I proto proto/users/user.proto --go_out=./gen/go/ --go_opt=paths=source_relative --go-grpc_out=./gen/go/ --go-grpc_opt=paths=source_relative
-
+  
+  gen:friends-proto:
+    dir: ./api
+    desc: Generate Go code from Protobuf files for users servers
+    cmds:
+      - protoc -I proto proto/friends/friends.proto --go_out=./gen/go/ --go_opt=paths=source_relative --go-grpc_out=./gen/go/ --go-grpc_opt=paths=source_relative
 
   tidy:proto:
     dir: ./api/proto
@@ -42,7 +47,7 @@ tasks:
 
   gen:all:
     desc: Generate all code and tidy modules
-    deps: [gen:users-proto, tidy:all]
+    deps: [gen:users-proto, gen:friends-proto, tidy:all]
 
   exec:users:
     dir: ./go/users
@@ -50,7 +55,7 @@ tasks:
     cmds:
       - go run ./cmd/users --config=./config/local.yml
   
-  exec:users:
+  exec:friends:
     dir: ./go/friends
     desc: Run user service
     cmds:

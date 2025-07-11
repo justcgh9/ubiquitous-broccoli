@@ -2,7 +2,11 @@ module github.com/justcgh9/discord-clone/desktop
 
 go 1.24.1
 
-require fyne.io/fyne/v2 v2.6.1
+require (
+	fyne.io/fyne/v2 v2.6.1
+	github.com/justcgh9/discord-clone-proto v0.0.0-20250703102444-965ebbdca5d3
+	google.golang.org/grpc v1.73.0
+)
 
 require (
 	fyne.io/systray v1.11.0 // indirect
@@ -33,8 +37,10 @@ require (
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/yuin/goldmark v1.7.8 // indirect
 	golang.org/x/image v0.24.0 // indirect
-	golang.org/x/net v0.35.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -67,6 +67,10 @@ func NewLoginByTokenPool(
 	return pool, nil
 }
 
+func (p *LoginByTokenPool) Close() {
+	close(p.requests)
+}
+
 func (p *LoginByTokenPool) worker(
 	id int,
 	client users.UserServiceClient,
@@ -77,6 +81,7 @@ func (p *LoginByTokenPool) worker(
 		select {
 		case <-req.ctx.Done():
 			req.resultC <- LoginResult{User: nil, Err: req.ctx.Err()}
+			close(req.resultC)
 			continue
 		default:
 		}
@@ -91,6 +96,7 @@ func (p *LoginByTokenPool) worker(
 			User: resp,
 			Err:  err,
 		}
+		close(req.resultC)
 	}
 }
 

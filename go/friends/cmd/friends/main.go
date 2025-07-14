@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/justcgh9/discord-clone-friends/internal/app"
+	"github.com/justcgh9/discord-clone-friends/internal/app/grpc/client"
 	"github.com/justcgh9/discord-clone-friends/internal/config"
+	friends "github.com/justcgh9/discord-clone-friends/internal/service"
+	"github.com/justcgh9/discord-clone-friends/internal/storage/graph"
+	"github.com/justcgh9/discord-clone-friends/internal/storage/postgres"
+	storage "github.com/justcgh9/discord-clone-friends/internal/storage/sync"
 )
 
 const (
@@ -21,6 +27,41 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
+	postgresRepo := postgres.MustConnect(context.Background(), cfg.StoragePath)
+	defer postgresRepo.Close()
+
+	graphRepo := graph.NewGraphRepository(graph.MustConnect(
+		cfg.GraphStorage.URI,
+		cfg.GraphStorage.Username,
+		cfg.GraphStorage.Password,
+		cfg.GraphStorage.Realm,
+	))
+	defer graphRepo.Close(context.Background())
+
+	db := storage.NewRepository(postgresRepo, graphRepo, log)
+	defer db.Close()
+
+	
+	friendsService := friends.NewService(
+		db,
+		db,
+		db,
+	)
+	
+	loginRequestQueue, err := client.NewLoginByTokenPool(
+		log,
+		cfg.UsersClient.URI,
+		cfg.UsersClient.NumWorkers,
+		cfg.UsersClient.QueueSize,
+		cfg.UsersClient.Timeout,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	defer loginRequestQueue.Close()
+
+
 	log.Info("starting up the user service")
 
 	done := make(chan os.Signal, 1)
@@ -29,16 +70,15 @@ func main() {
 	app := app.New(
 		log,
 		cfg.GRPCSrv.Port,
-		cfg.StoragePath,
-		cfg.GraphStorage,
-		cfg.UsersClient,
+		friendsService,
+		loginRequestQueue,
 	)
 
-	app.GRPCApp.MustRun()
+	go app.GRPCApp.MustRun()
 
 	<- done
 	app.GRPCApp.Stop()
-	log.Info("user service stopped")
+	defer log.Info("user service stopped")
 }
 
 func setupLogger(env string) *slog.Logger {

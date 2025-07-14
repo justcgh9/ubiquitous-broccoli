@@ -33,6 +33,10 @@ func NewGraphRepository(driver neo4j.DriverWithContext) *GraphRepository {
 	return &GraphRepository{driver: driver}
 }
 
+func (r *GraphRepository) Close(ctx context.Context) {
+	r.driver.Close(ctx)
+}
+
 func (r *GraphRepository) CreateUser(ctx context.Context, id, handle string) error {
 	const op = "storage.graph.CreateUser"
 

@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	kafka "github.com/justcgh9/discord-clone-kafka"
 	"github.com/justcgh9/discord-clone-users/internal/app"
 	"github.com/justcgh9/discord-clone-users/internal/config"
 	"github.com/justcgh9/discord-clone-users/internal/lib/logger/handlers/pretty"
@@ -24,10 +25,14 @@ func main() {
 
 	log.Info("starting up the user service")
 
+	producer := kafka.NewProducer(cfg.Brokers)
+	defer producer.Close()
+
 	myApp := app.New(
 		log,
 		cfg.GRPC.Port,
 		cfg.StoragePath,
+		producer,
 		cfg.TokenTTL,
 	)
 

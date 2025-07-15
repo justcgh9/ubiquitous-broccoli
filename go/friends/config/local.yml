@@ -13,3 +13,9 @@ graph_storage:
   username: "neo4j"
   password: "Test12345678"
   realm: ""
+kafka:
+  brokers:
+    - "localhost:9092"
+  min_bytes: 1
+  max_bytes: 10e6
+  max_wait: 2s

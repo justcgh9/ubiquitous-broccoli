@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"time"
 
+	kafka "github.com/justcgh9/discord-clone-kafka"
 	"github.com/justcgh9/discord-clone-users/internal/lib/jwt"
 	"github.com/justcgh9/discord-clone-users/internal/models"
 	"github.com/justcgh9/discord-clone-users/internal/storage"
@@ -36,6 +38,7 @@ type Auth struct {
 	usrProvider UserProvider
 	appProvider AppProvider
 	tokenTTL    time.Duration
+	producer 	*kafka.Producer
 }
 
 func New(
@@ -44,6 +47,7 @@ func New(
 	userProvider UserProvider,
 	appProvider AppProvider,
 	tokenTTL time.Duration,
+	producer *kafka.Producer,
 ) *Auth {
 	return &Auth{
 		usrSaver:    userSaver,
@@ -51,6 +55,7 @@ func New(
 		log:         log,
 		appProvider: appProvider,
 		tokenTTL:    tokenTTL,
+		producer: producer,
 	}
 }
 
@@ -129,6 +134,21 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, handle string,
 
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
+
+	go func() {
+		event := kafka.UserCreatedEvent{
+			UserID: strconv.Itoa(int(id)),
+			Handle: handle,
+			Email: email,
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		defer cancel()
+		
+		if err := a.producer.SendEvent(ctx, event); err != nil {
+			a.log.Error("created event not sent", slog.String("err", err.Error()))
+		}
+	} ()
 
 	return id, nil
 }

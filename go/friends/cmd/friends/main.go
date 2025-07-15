@@ -10,10 +10,12 @@ import (
 	"github.com/justcgh9/discord-clone-friends/internal/app"
 	"github.com/justcgh9/discord-clone-friends/internal/app/grpc/client"
 	"github.com/justcgh9/discord-clone-friends/internal/config"
+	"github.com/justcgh9/discord-clone-friends/internal/kafka/handlers"
 	friends "github.com/justcgh9/discord-clone-friends/internal/service"
 	"github.com/justcgh9/discord-clone-friends/internal/storage/graph"
 	"github.com/justcgh9/discord-clone-friends/internal/storage/postgres"
 	storage "github.com/justcgh9/discord-clone-friends/internal/storage/sync"
+	kafka "github.com/justcgh9/discord-clone-kafka"
 )
 
 const (
@@ -75,6 +77,22 @@ func main() {
 	)
 
 	go app.GRPCApp.MustRun()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	consumer := kafka.NewConsumer(
+		cfg.Kafka.Brokers,
+		kafka.TopicUserCreated,
+		cfg.Kafka.GroupID,
+		handlers.UserCreated(graphRepo.CreateUser),
+		cfg.Kafka.MinBytes,
+		cfg.Kafka.MaxBytes,
+		cfg.Kafka.MaxWait,
+	)
+
+	go consumer.Start(ctx)
+	defer consumer.Close()
 
 	<- done
 	app.GRPCApp.Stop()

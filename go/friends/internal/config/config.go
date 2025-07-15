@@ -11,6 +11,7 @@ type Config struct {
 	StoragePath    string     `yaml:"storage_path" env-required:"true"`
 	GraphStorage   GraphStorage	`yaml:"graph_storage" env-required:"true"`
 	GRPCSrv        GRPCServerConfig `yaml:"grpc_srv" env-required:"true"`
+	Kafka 		   Kafka `yaml:"kafka" env-required:"true"`
 	UsersClient	   GRPCUserServiceClient `yaml:"users_grpc_client" env-required:"true"`
 }
 
@@ -31,6 +32,14 @@ type GraphStorage struct {
 	Username	string	`yaml:"username" env-required:"true"`
 	Password 	string 	`yaml:"password" env-required:"true"`
 	Realm 		string 	`yaml:"realm" env-default:"true"`
+}
+
+type Kafka struct {
+	Brokers		[]string `yaml:"brokers" env-required:"true"`
+	GroupID 	string `yaml:"group_id" env-default:"friends-consumer"`
+	MinBytes 	int `yaml:"min_bytes" env-default:"10"`
+	MaxBytes 	int `yaml:"max_bytes" env-default:"10e6"`
+	MaxWait		time.Duration `yaml:"max_wait" env-default:"3s"`
 }
 
 func MustLoad() *Config {

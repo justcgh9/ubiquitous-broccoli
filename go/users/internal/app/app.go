@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	kafka "github.com/justcgh9/discord-clone-kafka"
 	grpcapp "github.com/justcgh9/discord-clone-users/internal/app/grpc"
 	"github.com/justcgh9/discord-clone-users/internal/service/auth"
 	"github.com/justcgh9/discord-clone-users/internal/storage/postgres"
@@ -18,6 +19,7 @@ func New(
 	log *slog.Logger,
 	gRPCPort int,
 	storagePath string,
+	producer *kafka.Producer,
 	tokenTTL time.Duration,
 ) *App {
 
@@ -29,6 +31,7 @@ func New(
 		storage,
 		storage,
 		tokenTTL,
+		producer,
 	)
 
 	gRPCApp := grpcapp.New(log, authService, gRPCPort)

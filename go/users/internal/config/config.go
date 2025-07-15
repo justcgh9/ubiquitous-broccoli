@@ -11,6 +11,7 @@ type Config struct {
 	StoragePath    string     `yaml:"storage_path" env-required:"true"`
 	GRPC           GRPCConfig `yaml:"grpc"`
 	TokenTTL       time.Duration `yaml:"token_ttl" env-default:"1h"`
+	Brokers		   []string   `yaml:"brokers" env-required:"true"`
 }
 
 type GRPCConfig struct {
